@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-J690WDBN8R"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-J690WDBN8R');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>The Sanctuary</title>
@@ -238,7 +246,10 @@
   function closeModal(){ modal.classList.remove("open"); }
 
   document.querySelectorAll("[data-coming-soon]").forEach(el=>{
-    el.addEventListener("click", openModal);
+    el.addEventListener("click", ()=>{
+      if(window.gtag) gtag('event', 'coming_soon_click', { feature: el.dataset.comingSoon });
+      openModal();
+    });
   });
   document.getElementById("coming-soon-close").addEventListener("click", closeModal);
   modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });

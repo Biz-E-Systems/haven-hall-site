@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-J690WDBN8R"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-J690WDBN8R');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Haven Hall — The Sanctuary</title>
@@ -872,6 +880,7 @@ function startVideoCrossfadeLoop(container, fadeSec){
 function enterRoom(roomId){
   const room = ROOMS.find(r=>r.id===roomId);
   currentRoom = room;
+  if(window.gtag) gtag('event', 'enter_room', { room_id: room.id, room_name: room.name });
   document.getElementById("room-title").textContent = room.name;
   if(activeVideoCrossfade){ activeVideoCrossfade.stop(); activeVideoCrossfade = null; }
   document.getElementById("scene-mount").innerHTML = sceneMarkup(room) +
@@ -944,6 +953,7 @@ function updateFullscreenButton(){
   fullscreenBtn.setAttribute("aria-label", fs ? "Exit fullscreen" : "Enter fullscreen");
 }
 fullscreenBtn.addEventListener("click", ()=>{
+  if(window.gtag) gtag('event', 'fullscreen_toggle', { room_id: currentRoom && currentRoom.id, state: isFullscreen() ? 'exit' : 'enter' });
   if(!isFullscreen()){
     const req = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
     if(req){
@@ -989,6 +999,7 @@ function renderLayers(room){
       toggle.classList.toggle("on", state.on);
       if(state.on && playing) startLayerIfNeeded(sound, state);
       applyLayerAudioState(sound, state.on, state.vol);
+      if(window.gtag) gtag('event', 'toggle_sound', { room_id: room.id, sound_id: sound.id, state: state.on ? 'on' : 'off' });
     });
 
     const nameWrap = document.createElement("div");
@@ -1103,6 +1114,7 @@ function stopPlayback(){
 }
 
 function toggleMasterPlay(){
+  if(window.gtag) gtag('event', 'master_play_toggle', { room_id: currentRoom && currentRoom.id, state: playing ? 'pause' : 'play' });
   if(playing) stopPlayback(); else startPlayback();
 }
 
