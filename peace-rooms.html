@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Haven Hall — The Sanctuary</title>
+<!-- Lets iOS open this with zero Safari chrome when added to the Home Screen —
+     the practical stand-in for fullscreen, since iOS Safari has no Fullscreen
+     API for ordinary tabs. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Haven Hall">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e1016">
+<link rel="apple-touch-icon" href="https://static.wixstatic.com/media/6626e8_3603f4f76f06470480b14c777bfa8fd0~mv2.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0e1016;
+    --panel:#171a24;
+    --panel-2:#1e2230;
+    --cream:#efe6d3;
+    --dim:#8890a0;
+    --line:rgba(239,230,211,0.10);
+
+    --storm:#5f83a3;
+    --cabin:#c98a4b;
+    --cove:#4fa39a;
+    --cafe:#a9765a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:500;margin:0;}
+  button{font-family:'Inter',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+
+  /* ---------- HALL ---------- */
+  #hall{position:relative;max-width:1400px;margin:0 auto;padding-bottom:40px;}
+
+  .hero-wrap{
+    position:relative;width:100%;
+    aspect-ratio:1376/768;
+    overflow:hidden;
+    background:#05060a;
+  }
+  .hero-img{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;display:block;
+  }
+  .hero-scrim{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(5,6,10,0.60) 0%, rgba(5,6,10,0.02) 26%, rgba(5,6,10,0.10) 66%, rgba(5,6,10,0.82) 100%);
+  }
+
+  .fireflies{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+  .firefly{
+    position:absolute;width:3px;height:3px;border-radius:50%;
+    background:#e8ff9e;
+    box-shadow:0 0 4px 1px rgba(232,255,158,0.55), 0 0 10px 3px rgba(232,255,158,0.18);
+    opacity:0;
+    animation:firefly-drift linear infinite, firefly-glow ease-in-out infinite;
+  }
+  @keyframes firefly-drift{
+    0%{transform:translate(0,0);}
+    25%{transform:translate(18px,-16px);}
+    50%{transform:translate(-8px,-28px);}
+    75%{transform:translate(-22px,-6px);}
+    100%{transform:translate(0,0);}
+  }
+  @keyframes firefly-glow{
+    0%,100%{opacity:0;}
+    35%{opacity:0.55;}
+    55%{opacity:0.22;}
+    80%{opacity:0.6;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .firefly{animation:none;opacity:0.6;}
+  }
+  .hero-title{
+    position:absolute;top:clamp(14px,4vw,40px);left:0;right:0;
+    text-align:center;padding:0 20px;pointer-events:none;
+  }
+  .hero-title h1{
+    font-size:clamp(24px,4.4vw,44px);color:var(--cream);
+    text-shadow:0 4px 24px rgba(0,0,0,0.75);letter-spacing:0.2px;
+  }
+  .hero-title p{
+    margin-top:8px;color:rgba(239,230,211,0.82);
+    font-size:clamp(11.5px,1.6vw,15px);
+    text-shadow:0 2px 10px rgba(0,0,0,0.8);
+  }
+
+  .doors-overlay{
+    position:absolute;top:24%;left:50%;transform:translateX(-50%);
+    width:min(94%,980px);
+    display:flex;justify-content:center;gap:clamp(10px,2.4vw,26px);
+  }
+  .room-tile{
+    flex:1 1 0;max-width:280px;
+    background:rgba(8,8,12,0.5);
+    border:1px solid rgba(255,214,140,0.28);
+    border-radius:10px;
+    overflow:hidden;
+    cursor:pointer;
+    backdrop-filter:blur(2px);
+    transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    text-align:left;
+    font:inherit;color:inherit;padding:0;
+  }
+  .room-tile:hover, .room-tile:focus-visible{
+    transform:translateY(-3px);
+    box-shadow:0 14px 30px -14px rgba(0,0,0,0.6), 0 0 20px rgba(255,190,110,0.25);
+    border-color:rgba(255,214,140,0.55);
+    outline:none;
+  }
+  .room-tile .thumb{width:100%;aspect-ratio:1/0.97;object-fit:cover;display:block;}
+  .room-tile .tile-label{padding:10px 12px 12px;}
+  .room-tile .tile-label h3{
+    font-family:'Fraunces',serif;font-weight:600;
+    font-size:clamp(13px,1.5vw,17px);color:var(--cream);
+  }
+  .room-tile .tile-label p{
+    margin-top:4px;font-size:clamp(10.5px,1.15vw,12.5px);color:rgba(239,230,211,0.72);
+    line-height:1.4;
+    display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;
+  }
+
+  @media (max-width:760px){
+    .doors-overlay{
+      position:static;transform:none;width:auto;
+      flex-direction:column;gap:14px;
+      padding:16px 16px 6px;
+      background:linear-gradient(180deg, rgba(5,6,10,0.94), var(--ink) 88%);
+    }
+    .room-tile{max-width:none;flex:none;display:flex;align-items:center;}
+    .room-tile .thumb{width:110px;aspect-ratio:1/1;flex:none;}
+    .room-tile .tile-label{padding:10px 12px;display:flex;flex-direction:column;justify-content:center;}
+    .room-tile .tile-label p{-webkit-line-clamp:2;font-size:13px;}
+  }
+
+  /* ---------- ROOM VIEW ---------- */
+  #room-view{
+    position:fixed;inset:0;
+    display:none;
+    flex-direction:column;
+    z-index:50;
+  }
+  #room-view.active{display:flex;}
+  .scene{position:absolute;inset:0;overflow:hidden;}
+  .scene.paused *{animation-play-state:paused;}
+  .bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .bg-video-crossfade{position:absolute;inset:0;}
+  .bg-video-crossfade .bg-video{opacity:0;transition:opacity 3.5s linear;}
+  .bg-video-crossfade .bg-video.bg-video-active{opacity:1;}
+
+  .scene-click{
+    position:absolute;inset:0;z-index:2;
+    display:flex;align-items:center;justify-content:center;
+    background:transparent;border:none;padding:0;margin:0;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
+  }
+  .play-indicator{
+    width:74px;height:74px;border-radius:50%;
+    background:rgba(14,16,22,0.55);
+    border:1px solid rgba(239,230,211,0.35);
+    color:var(--cream);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;
+    backdrop-filter:blur(6px);
+    opacity:0;
+    transition:opacity .25s ease;
+    pointer-events:none;
+  }
+  .scene-click.show-indicator .play-indicator,
+  .scene-click.paused .play-indicator{opacity:1;}
+
+  .room-topbar{
+    position:relative;z-index:11;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:calc(20px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) 20px calc(24px + env(safe-area-inset-left));
+    background:linear-gradient(180deg, rgba(14,16,22,0.55), rgba(14,16,22,0));
+  }
+  .back-btn{
+    background:rgba(14,16,22,0.5);
+    border:1px solid rgba(239,230,211,0.25);
+    color:var(--cream);
+    padding:8px 14px;border-radius:20px;font-size:13px;
+    backdrop-filter:blur(6px);
+  }
+  .hall-back-btn{
+    position:absolute;z-index:5;
+    top:calc(14px + env(safe-area-inset-top));
+    left:calc(14px + env(safe-area-inset-left));
+    width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;font-size:16px;text-decoration:none;
+  }
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .topbar-actions{display:flex;align-items:center;gap:8px;}
+  .icon-btn{
+    width:36px;height:36px;border-radius:50%;flex:none;
+    background:rgba(14,16,22,0.5);
+    border:1px solid rgba(239,230,211,0.25);
+    color:var(--cream);
+    display:flex;align-items:center;justify-content:center;font-size:14px;
+    backdrop-filter:blur(6px);
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .icon-btn:hover{border-color:rgba(255,214,140,0.5);}
+  .icon-btn[hidden]{display:none;}
+  .sidebar-toggle[aria-expanded="true"]{background:var(--room-accent, var(--cream));color:var(--ink);border-color:transparent;}
+
+  .sidebar{
+    position:fixed;top:0;right:0;bottom:0;z-index:10;
+    width:min(340px,86vw);
+    background:rgba(14,16,22,0.86);
+    border-left:1px solid rgba(239,230,211,0.14);
+    backdrop-filter:blur(16px);
+    padding:calc(78px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) 20px;
+    overflow-y:auto;
+    transform:translateX(100%);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .sidebar-head h3{font-size:16px;color:var(--cream);}
+  .sidebar-close{
+    width:28px;height:28px;border-radius:50%;
+    background:transparent;border:none;color:var(--dim);font-size:16px;
+  }
+  .sidebar-close:hover{color:var(--cream);background:rgba(239,230,211,0.1);}
+
+  .master-vol-row{
+    display:flex;flex-direction:column;gap:8px;
+    font-size:11px;color:var(--dim);
+    padding-bottom:16px;margin-bottom:16px;
+    border-bottom:1px solid var(--line);
+  }
+  .master-vol-row input[type=range]{width:100%;}
+
+  .layers{display:flex;flex-direction:column;gap:10px;padding-right:2px;}
+  .layer-category{
+    font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;
+    color:var(--dim);margin-top:12px;
+  }
+  .layer-category:first-child{margin-top:0;}
+  .layer-row{display:grid;grid-template-columns:26px 1fr 90px;align-items:center;gap:12px;}
+  .layer-toggle{
+    width:26px;height:26px;border-radius:8px;
+    border:1px solid rgba(239,230,211,0.25);
+    background:transparent;color:var(--cream);
+    font-size:13px;display:flex;align-items:center;justify-content:center;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .layer-toggle.on{background:var(--room-accent, var(--cream));border-color:transparent;color:var(--ink);}
+  .layer-name{font-size:13.5px;}
+  .layer-name .music-tag{display:block;font-size:10.5px;color:var(--dim);margin-top:1px;}
+  .layer-row input[type=range]{width:100%;}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;height:3px;background:rgba(239,230,211,0.22);
+    border-radius:3px;outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+    background:var(--cream);cursor:pointer;border:2px solid var(--ink);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:13px;height:13px;border-radius:50%;background:var(--cream);border:2px solid var(--ink);cursor:pointer;
+  }
+
+  .presets{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+  .presets-head{display:flex;gap:8px;margin-bottom:10px;}
+  .presets-head input[type=text]{
+    flex:1;background:var(--panel-2);border:1px solid var(--line);color:var(--cream);
+    padding:8px 10px;border-radius:8px;font-size:16px;
+  }
+  .presets-head button{
+    background:var(--room-accent, var(--cream));color:var(--ink);border:none;
+    padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;
+  }
+  .preset-chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset-chip{
+    display:flex;align-items:center;gap:8px;
+    background:var(--panel-2);border:1px solid var(--line);
+    padding:5px 6px 5px 12px;border-radius:20px;font-size:12px;
+  }
+  .preset-chip button{
+    background:transparent;border:none;color:var(--dim);font-size:14px;
+    width:20px;height:20px;border-radius:50%;
+  }
+  .preset-chip button:hover{color:var(--cream);background:rgba(239,230,211,0.1);}
+  .preset-chip-default{font-weight:600;border-color:rgba(255,214,140,0.35);padding-right:12px;}
+
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-thumb{background:rgba(239,230,211,0.2);border-radius:6px;}
+
+  /* ---------- SCENE ANIMATIONS ---------- */
+  .bg-fill{position:absolute;inset:0;}
+
+  /* Storm */
+  .storm-sky{background:linear-gradient(180deg,#232c38 0%,#161b24 60%,#101319 100%);}
+  .rain-layer{
+    position:absolute;inset:-20% -10%;
+    background-image:repeating-linear-gradient(115deg, rgba(210,225,240,0.16) 0px, rgba(210,225,240,0.16) 1px, transparent 1px, transparent 11px);
+    animation:rainfall 0.35s linear infinite;
+  }
+  @keyframes rainfall{from{transform:translateY(-10%);}to{transform:translateY(4%);}}
+  .studio-silhouette{
+    position:absolute;bottom:0;left:0;right:0;height:34%;
+    background:linear-gradient(180deg, transparent, rgba(10,12,16,0.9));
+  }
+
+  /* Meadow */
+  .meadow-bg{background:linear-gradient(180deg,#1b2230 0%,#12161f 55%,#0c0e14 100%);}
+
+  /* Drift */
+  .drift-bg{background:linear-gradient(180deg,#161c26 0%,#10151d 55%,#0b0e13 100%);}
+  .moonlight{position:absolute;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#f4f0dd,rgba(244,240,221,0.15) 70%,transparent 100%);}
+  .moonlight-2{top:10%;left:20%;width:50px;height:50px;}
+  .cabin-window{
+    position:absolute;bottom:30%;left:28%;width:16px;height:14px;border-radius:2px;
+    background:#ffb361;box-shadow:0 0 24px 10px rgba(255,170,90,0.45);
+    animation:flicker 2.6s ease-in-out infinite;
+  }
+  @keyframes flicker{0%,100%{opacity:0.85;}30%{opacity:1;}55%{opacity:0.7;}80%{opacity:0.95;}}
+  .wave{position:absolute;left:-10%;right:-10%;height:36%;bottom:0;border-radius:50% 50% 0 0/16px 16px 0 0;opacity:.5;animation:wave 7s ease-in-out infinite;}
+  .wave1{background:#1c2a30;bottom:0;animation-duration:8s;}
+  .wave2{background:#172329;opacity:.4;bottom:4%;animation-duration:6s;animation-delay:-2s;}
+  .wave3{background:#111c21;opacity:.35;bottom:8%;animation-duration:9.5s;animation-delay:-4s;}
+  @keyframes wave{0%,100%{transform:translateX(0) translateY(0);}50%{transform:translateX(-3%) translateY(-8px);}}
+
+  /* Throwback (fallback color while a real video is pending) */
+  .throwback-bg{background:linear-gradient(180deg,#2a2018 0%,#1c150f 55%,#120d09 100%);}
+
+  @media (prefers-reduced-motion: reduce){
+    .rain-layer{animation:none !important;}
+  }
+
+  @media (max-width:640px){
+    .layer-row{grid-template-columns:34px 1fr 74px;gap:8px;}
+    .sidebar{width:100vw;padding:calc(70px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));}
+    /* Comfortable touch targets (Apple HIG recommends ~44px) for the controls
+       people actually tap on a phone, without changing their desktop size. */
+    .layer-toggle{width:34px;height:34px;font-size:15px;}
+    .icon-btn{width:44px;height:44px;font-size:16px;}
+    .sidebar-close{width:36px;height:36px;font-size:18px;}
+    input[type=range]::-webkit-slider-thumb{width:20px;height:20px;}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px;}
+    .play-indicator{width:60px;height:60px;font-size:20px;}
+    .presets-head button{padding:10px 16px;}
+    .preset-chip{padding:8px 8px 8px 14px;font-size:13px;}
+    .preset-chip button{width:26px;height:26px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HALL ================= -->
+<div id="hall">
+  <div class="hero-wrap">
+    <img class="hero-img" src="https://static.wixstatic.com/media/6626e8_663cb62376634ed6a0692c661711c831~mv2.jpg" width="1024" height="572"
+         alt="A dim wooden hallway lined with glowing doors beneath a star-filled skylight, leading toward a misty stone archway"
+         loading="eager" fetchpriority="high" decoding="async">
+    <div class="hero-scrim"></div>
+    <div class="fireflies" id="fireflies"></div>
+    <a class="back-btn hall-back-btn" href="https://app.thepaintedlife.com/the-sanctuary" aria-label="Back to The Sanctuary" title="The Sanctuary">←</a>
+    <div class="hero-title">
+      <h1>Haven Hall</h1>
+      <p>A room for everyone.</p>
+    </div>
+  </div>
+  <div class="doors-overlay" id="doors-overlay"></div>
+</div>
+
+<!-- ================= ROOM VIEW ================= -->
+<div id="room-view">
+  <div class="scene" id="scene-mount"></div>
+
+  <button class="scene-click" id="scene-click" aria-label="Play or pause">
+    <span class="play-indicator" id="play-indicator">▶</span>
+  </button>
+
+  <div class="room-topbar">
+    <button class="back-btn" id="back-btn">← Haven Hall</button>
+    <h2 id="room-title" class="sr-only"></h2>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="fullscreen-toggle" aria-label="Enter fullscreen" title="Fullscreen">⛶</button>
+      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" aria-label="Sound settings" aria-expanded="false">☰</button>
+    </div>
+  </div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <h3>Sound Mixer</h3>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close sound settings">✕</button>
+    </div>
+
+    <div class="master-vol-row">
+      <span>Master Volume</span>
+      <input type="range" id="master-volume" min="0" max="100" value="70">
+    </div>
+
+    <div class="layers" id="layers-mount"></div>
+
+    <div class="presets">
+      <div class="presets-head">
+        <input type="text" id="preset-name" placeholder="Name this mix…" maxlength="30">
+        <button id="preset-save">Save</button>
+      </div>
+      <div class="preset-chips" id="preset-chips"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* =========================================================
+   CONFIG — swap in your own video/audio from Wix Media Manager
+   ========================================================= */
+
+/* Shared sound library — every sound is available as a toggle in every
+   room. Rooms only differ in which ones default on/off and at what volume
+   (see ROOMS[].defaults below). baseVol is the volume a sound starts at
+   if a visitor turns it on in a room where it isn't part of the default mix. */
+const SOUNDS = [
+  { id:"rain",         name:"Rain",               icon:"🌧", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_9c1316690fd94d0198c60c0905139760.mp3", fade:2.5, category:"Weather", baseVol:55 },
+  { id:"thunder",      name:"Thunder",            icon:"⛈", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_8f97c2ff5bb34a158e0cd5b2c9c7e4ab.mp3", fade:2.5, category:"Weather", baseVol:35 },
+  { id:"wind",         name:"Wind",               icon:"🌬", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_c0f6dcf950324d07a7acb3968dd0e948.mp3", fade:2.5, category:"Weather", baseVol:25 },
+
+  { id:"insects",      name:"Crickets & Insects", icon:"🦗", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_f3f13fb2f82447dfa988405936f739a7.mp3", fade:2.5, category:"Nature", baseVol:22 },
+  { id:"owl",          name:"Owl",                icon:"🦉", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_ddba6f62111a4888ba912790b63a9afa.mp3", fade:2.5, category:"Nature", baseVol:24 },
+  { id:"water-creek",  name:"Water Creek",        icon:"💧", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_6aac04bbffe0498498893da4a2603e08.mp3", fade:2.5, category:"Nature", baseVol:35 },
+  { id:"water-waves",  name:"Ocean Waves",        icon:"🌊", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_028ab4cc5ab34a569ce48447479aac13.mp3", fade:2.5, category:"Nature", baseVol:35 },
+  { id:"fire",         name:"Campfire Crackle",   icon:"🔥", kind:"crackle", category:"Nature", baseVol:35 },
+
+  { id:"white-noise",  name:"White Noise",        icon:"📡", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_6d0ddbb9767240fb8bc446ef3f5d53ed.mp3", fade:2.5, category:"Noise", baseVol:30 },
+  { id:"brown-noise",  name:"Brown Noise",        icon:"🟫", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_e1b2955f04904eb1b3bb2ab65b806d0e.mp3", fade:2.5, category:"Noise", baseVol:30 },
+  { id:"fan-hum",      name:"Fan Hum",            icon:"🌀", kind:"avloop", src:"https://static.wixstatic.com/mp3/6626e8_54027ae09f9a47c19bfc93b3c65bd2c2.mp3", fade:2.5, category:"Noise", baseVol:25 },
+
+  { id:"music",        name:"Music",              icon:"🎵", kind:"music", category:"Music", baseVol:40 }
+];
+
+// Shared music queue — plays through in order, loops forever, no picker shown to visitors.
+const MUSIC_PLAYLIST = ["https://static.wixstatic.com/mp3/6626e8_80a9e559716942549bf2a4afdd560653.mp3", "https://static.wixstatic.com/mp3/6626e8_de032ed84c1f4f2988ef48e5a1bf6647.mp3"];
+
+const ROOMS = [
+  {
+    id: "storm",
+    name: "Stormy Studio",
+    desc: "Nothing like a cozy studio when the storm rolls in outside the window.",
+    accent: "#5f83a3",
+    defaults: {
+      rain:    { on:true, vol:55 },
+      thunder: { on:true, vol:35 },
+      music:   { on:true, vol:40 }
+    }
+  },
+  {
+    id: "meadow",
+    name: "Midnight Meadow",
+    desc: "Sometimes the fog can feel like a blanket pulled up to your chin.",
+    accent: "#8a93a8",
+    defaults: {
+      owl:     { on:true, vol:24 },
+      wind:    { on:true, vol:25 },
+      insects: { on:true, vol:22 },
+      music:   { on:true, vol:40 }
+    }
+  },
+  {
+    id: "drift",
+    name: "Drifter's Dream",
+    desc: "The water whispers secrets in the still of the night.",
+    accent: "#6a7f8f",
+    defaults: {
+      owl:          { on:true, vol:24 },
+      wind:         { on:true, vol:25 },
+      "water-creek":{ on:true, vol:35 },
+      music:        { on:true, vol:40 }
+    }
+  },
+  {
+    id: "throwback",
+    name: "Throwback Shack",
+    desc: "The VCR hums, the static glows, and tonight's rerun never gets old.",
+    accent: "#c99a4f",
+    defaults: {
+      "white-noise": { on:true, vol:30 },
+      music:         { on:true, vol:40 }
+    }
+  }
+];
+
+/* =========================================================
+   SCENE MARKUP (CSS placeholders — swap for <video> if desired)
+   ========================================================= */
+function sceneMarkup(room){
+  if(room.id === "storm"){
+    return `<div class="bg-fill storm-sky"></div>
+      <div class="bg-video-crossfade">
+        <video class="bg-video" autoplay muted playsinline preload="auto"
+               poster="https://static.wixstatic.com/media/6626e8_e0f5e5c744f243f8aff19a9c1ecd19e9~mv2.jpg"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_a3b403da49d348568408550aa2ccf29d/720p/mp4/file.mp4" type="video/mp4">
+        </video>
+        <video class="bg-video" muted playsinline preload="auto"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_a3b403da49d348568408550aa2ccf29d/720p/mp4/file.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="studio-silhouette"></div>`;
+  }
+  if(room.id === "meadow"){
+    return `<div class="bg-fill meadow-bg"></div>
+      <div class="bg-video-crossfade">
+        <video class="bg-video" style="object-position:40% 75%" autoplay muted playsinline preload="auto"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_7a02a3e4853e4d2488035a06026ebf83/1080p/mp4/file.mp4" type="video/mp4">
+        </video>
+        <video class="bg-video" style="object-position:40% 75%" muted playsinline preload="auto"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_7a02a3e4853e4d2488035a06026ebf83/1080p/mp4/file.mp4" type="video/mp4">
+        </video>
+      </div>`;
+  }
+  if(room.id === "drift"){
+    return `<div class="bg-fill drift-bg"></div>
+      <div class="bg-video-crossfade">
+        <video class="bg-video" style="object-position:20% center" autoplay muted playsinline preload="auto"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_25b598f179f34aa0b64b5023a43eac9e/720p/mp4/file.mp4" type="video/mp4">
+        </video>
+        <video class="bg-video" style="object-position:20% center" muted playsinline preload="auto"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_25b598f179f34aa0b64b5023a43eac9e/720p/mp4/file.mp4" type="video/mp4">
+        </video>
+      </div>`;
+  }
+  if(room.id === "throwback"){
+    return `<div class="bg-fill throwback-bg"></div>
+      <div class="bg-video-crossfade">
+        <video class="bg-video" autoplay muted playsinline preload="auto"
+               poster="https://static.wixstatic.com/media/6626e8_d7e60fa7bd454fcb995e1c4e203a73a8~mv2.jpg"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_a620f6f370fd47a7b87d06b55d834dbb/360p/mp4/file.mp4" media="(max-width:760px)" type="video/mp4">
+          <source src="https://video.wixstatic.com/video/6626e8_895c9f1a029e499c87383ccc8eb27225/720p/mp4/file.mp4" type="video/mp4">
+        </video>
+        <video class="bg-video" muted playsinline preload="auto"
+               onerror="this.style.display='none'">
+          <source src="https://video.wixstatic.com/video/6626e8_a620f6f370fd47a7b87d06b55d834dbb/360p/mp4/file.mp4" media="(max-width:760px)" type="video/mp4">
+          <source src="https://video.wixstatic.com/video/6626e8_895c9f1a029e499c87383ccc8eb27225/720p/mp4/file.mp4" type="video/mp4">
+        </video>
+      </div>`;
+  }
+  return "";
+}
+
+/* =========================================================
+   HALL RENDER — Haven Hall cards over The Sanctuary hallway art
+   ========================================================= */
+const THUMBS = {
+  storm:     "https://static.wixstatic.com/media/6626e8_e0f5e5c744f243f8aff19a9c1ecd19e9~mv2.jpg",
+  meadow:    "https://static.wixstatic.com/media/6626e8_62fe710b83594477bfde8872eaf4fe9e~mv2.jpg",
+  drift:     "https://static.wixstatic.com/media/6626e8_09593a34cf8b4c27be7c780a66d23968~mv2.jpg",
+  throwback: "https://static.wixstatic.com/media/6626e8_707200ea220842c2a9d1b2bf67e81b98~mv2.jpg"
+};
+
+// Fireflies drifting over the Haven Hall hero image.
+const firefliesMount = document.getElementById("fireflies");
+for(let i=0;i<6;i++){
+  const f = document.createElement("div");
+  f.className = "firefly";
+  f.style.left = (Math.random()*100).toFixed(1) + "%";
+  f.style.top = (22 + Math.random()*60).toFixed(1) + "%";
+  const driftDur = (6 + Math.random()*6).toFixed(2) + "s";
+  const glowDur = (2 + Math.random()*2.5).toFixed(2) + "s";
+  f.style.animationDuration = `${driftDur}, ${glowDur}`;
+  f.style.animationDelay = `${(Math.random()*6).toFixed(2)}s, ${(Math.random()*3).toFixed(2)}s`;
+  firefliesMount.appendChild(f);
+}
+
+const doorsOverlay = document.getElementById("doors-overlay");
+ROOMS.forEach(room=>{
+  const tile = document.createElement("button");
+  tile.className = "room-tile";
+  tile.type = "button";
+  tile.setAttribute("aria-label", `Enter ${room.name} — ${room.desc}`);
+  tile.innerHTML = `
+    <img class="thumb" src="${THUMBS[room.id]}" alt="" loading="lazy" width="240" height="230">
+    <div class="tile-label">
+      <h3>${room.name}</h3>
+      <p>${room.desc}</p>
+    </div>`;
+  tile.addEventListener("click", ()=>enterRoom(room.id));
+  doorsOverlay.appendChild(tile);
+});
+
+/* =========================================================
+   AUDIO ENGINE (all procedural — no external files required)
+   ========================================================= */
+let audioCtx = null;
+let masterGain = null;
+let activeLayers = {}; // id -> {source, filter, gain, lfo, stop()}
+let playing = false;
+let currentRoom = null;
+
+function ensureCtx(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = document.getElementById("master-volume").value/100;
+    masterGain.connect(audioCtx.destination);
+  }
+}
+
+function startCrackleLayer(layer, state){
+  ensureCtx();
+  const gain = audioCtx.createGain();
+  gain.gain.value = 1;
+  gain.connect(masterGain);
+  let timer=null, running=true;
+  function pop(){
+    if(!running) return;
+    const dur = 0.04+Math.random()*0.05;
+    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate*dur, audioCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * (1-i/d.length);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 800+Math.random()*1800;
+    const g = audioCtx.createGain();
+    const vol = activeLayers[layer.id] ? activeLayers[layer.id].targetVol : state.vol/100;
+    const on = activeLayers[layer.id] ? activeLayers[layer.id].on : state.on;
+    g.gain.value = on ? vol*(0.5+Math.random()*0.6) : 0;
+    src.connect(filter).connect(g).connect(gain);
+    src.start();
+    const base = layer.slow ? 2600 : 700;
+    const range = layer.slow ? 3200 : 1400;
+    timer = setTimeout(pop, base+Math.random()*range);
+  }
+  pop();
+  activeLayers[layer.id] = {
+    gain, targetVol:(state.vol/100), on:state.on,
+    stop(){ running=false; if(timer) clearTimeout(timer); }
+  };
+}
+
+let musicEl = null;
+
+/* Real recorded audio (e.g. licensed storm ambience) that loops with a
+   crossfade at the seam instead of a hard cut. Uses two <audio> elements
+   that hand off to each other a few seconds before each one ends. */
+function startAvLoopLayer(layer, state){
+  ensureCtx();
+  const layerGain = audioCtx.createGain();
+  layerGain.gain.value = 0;
+  layerGain.connect(masterGain);
+
+  const fade = layer.fade || 2;
+  const elA = document.createElement("audio");
+  const elB = document.createElement("audio");
+  // Must be set before .src — otherwise the browser fetches in default
+  // (non-CORS) mode and Web Audio permanently taints the resulting node,
+  // even though the CDN itself allows cross-origin access.
+  elA.crossOrigin = "anonymous"; elB.crossOrigin = "anonymous";
+  elA.src = layer.src; elB.src = layer.src;
+  elA.preload = "auto"; elB.preload = "auto";
+
+  const gA = audioCtx.createGain(); gA.gain.value = 1;
+  const gB = audioCtx.createGain(); gB.gain.value = 0;
+  audioCtx.createMediaElementSource(elA).connect(gA).connect(layerGain);
+  audioCtx.createMediaElementSource(elB).connect(gB).connect(layerGain);
+
+  let stopped = false, timer = null, usingA = true;
+
+  function scheduleSwap(durationSec){
+    const waitMs = Math.max(500, (durationSec - fade) * 1000);
+    timer = setTimeout(()=>{
+      if(stopped) return;
+      const now = audioCtx.currentTime;
+      const nextEl = usingA ? elB : elA;
+      const curGain = usingA ? gA : gB;
+      const nextGain = usingA ? gB : gA;
+      nextEl.currentTime = 0;
+      nextEl.play().catch(err=>console.error("avloop layer play() rejected:", layer.src, err));
+      curGain.gain.cancelScheduledValues(now);
+      curGain.gain.linearRampToValueAtTime(0, now + fade);
+      nextGain.gain.cancelScheduledValues(now);
+      nextGain.gain.setValueAtTime(0, now);
+      nextGain.gain.linearRampToValueAtTime(1, now + fade);
+      usingA = !usingA;
+      scheduleSwap(nextEl.duration || durationSec);
+    }, waitMs);
+  }
+
+  elA.addEventListener("error", ()=>{
+    console.error("avloop layer failed to load:", layer.src, elA.error);
+  });
+  elA.addEventListener("loadedmetadata", ()=>{
+    if(stopped) return;
+    elA.play().catch(err=>console.error("avloop layer play() rejected:", layer.src, err));
+    scheduleSwap(elA.duration || 120);
+  }, { once:true });
+
+  activeLayers[layer.id] = {
+    gain: layerGain, targetVol:(state.vol/100),
+    stop(){
+      stopped = true;
+      if(timer) clearTimeout(timer);
+      try{ elA.pause(); elB.pause(); }catch(e){}
+    }
+  };
+}
+
+/* Music: plays straight through the shared playlist in order, looping back
+   to the first track forever. No track picker — one on/off + volume.
+   Volume is controlled via a Web Audio gain node feeding into masterGain,
+   NOT the <audio> element's own .volume property — iOS Safari silently
+   ignores JS writes to HTMLMediaElement.volume (it reserves volume control
+   for the hardware buttons), so that property alone can't be trusted. */
+function startMusicLayer(layer, state){
+  musicEl = document.getElementById("music-audio");
+  if(!musicEl) return;
+  musicEl.crossOrigin = "anonymous"; // must be set before .src (see startAvLoopLayer)
+  ensureCtx();
+  const musicGain = audioCtx.createGain();
+  musicGain.gain.value = state.on ? (state.vol/100) : 0;
+  musicGain.connect(masterGain);
+  audioCtx.createMediaElementSource(musicEl).connect(musicGain);
+
+  const list = MUSIC_PLAYLIST;
+  let idx = 0;
+  function playIndex(i){
+    if(list.length === 0) return;
+    idx = ((i % list.length) + list.length) % list.length;
+    musicEl.src = list[idx];
+    if(state.on && playing) musicEl.play().catch(()=>{});
+  }
+  musicEl.onended = ()=> playIndex(idx + 1);
+  if(list.length) playIndex(0);
+  activeLayers[layer.id] = {
+    isMusic:true, gain: musicGain, targetVol:(state.vol/100), on:state.on,
+    stop(){
+      musicEl.pause(); musicEl.onended = null;
+      try{ musicGain.disconnect(); }catch(e){}
+    }
+  };
+}
+
+function applyLayerAudioState(layer, on, vol){
+  const entry = activeLayers[layer.id];
+  if(!entry) return;
+  entry.on = on;
+  entry.targetVol = vol/100;
+  if(layer.kind === "music" && musicEl){
+    if(on && playing && musicEl.paused && musicEl.src){ musicEl.play().catch(()=>{}); }
+    if(!on) musicEl.pause();
+  }
+  if(!entry.gain) return;
+  const t = audioCtx.currentTime;
+  const target = (on && playing) ? vol/100 : 0;
+  entry.gain.gain.cancelScheduledValues(t);
+  entry.gain.gain.linearRampToValueAtTime(target, t+0.5);
+}
+
+function stopAllLayers(){
+  Object.values(activeLayers).forEach(l=>{ if(l.stop) l.stop(); });
+  activeLayers = {};
+}
+
+/* =========================================================
+   PRESETS (localStorage)
+   ========================================================= */
+const PRESET_KEY = "ambeyonce_presets_v1";
+function loadAllPresets(){
+  try{ return JSON.parse(localStorage.getItem(PRESET_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveAllPresets(data){ localStorage.setItem(PRESET_KEY, JSON.stringify(data)); }
+function getRoomPresets(roomId){ return loadAllPresets()[roomId] || []; }
+function saveRoomPreset(roomId, preset){
+  const all = loadAllPresets();
+  all[roomId] = all[roomId] || [];
+  all[roomId].push(preset);
+  saveAllPresets(all);
+}
+function deleteRoomPreset(roomId, name){
+  const all = loadAllPresets();
+  all[roomId] = (all[roomId]||[]).filter(p=>p.name!==name);
+  saveAllPresets(all);
+}
+
+/* Remembers whichever mix (the room default, or a named saved preset) a
+   visitor last had active in each room, so the next visit can resume it
+   automatically instead of always falling back to the room's defaults. */
+const LAST_MIX_KEY = "ambeyonce_lastmix_v1";
+function loadLastMix(){
+  try{ return JSON.parse(localStorage.getItem(LAST_MIX_KEY)) || {}; }catch(e){ return {}; }
+}
+function setLastMix(roomId, marker){
+  const all = loadLastMix();
+  all[roomId] = marker; // {type:"default"} or {type:"preset", name}
+  localStorage.setItem(LAST_MIX_KEY, JSON.stringify(all));
+}
+
+/* =========================================================
+   ROOM VIEW
+   ========================================================= */
+let roomState = {}; // layerId -> {on, vol}
+let activeVideoCrossfade = null;
+
+/* Loops a background video by crossfading into a second copy of itself a
+   few seconds before it ends, instead of hard-cutting back to frame 0 —
+   same two-element handoff technique as the avloop audio layers, applied
+   to <video> opacity instead of GainNode values. */
+function startVideoCrossfadeLoop(container, fadeSec){
+  const videos = Array.from(container.querySelectorAll("video"));
+  if(videos.length < 2) return null;
+  const [vA, vB] = videos;
+  vA.classList.add("bg-video-active");
+
+  let usingA = true, stopped = false, timer = null, pauseTimer = null;
+
+  function scheduleSwap(durationSec){
+    const waitMs = Math.max(500, (durationSec - fadeSec) * 1000);
+    timer = setTimeout(function attemptSwap(){
+      if(stopped) return;
+      if(!playing){ timer = setTimeout(attemptSwap, 400); return; }
+      const curEl = usingA ? vA : vB;
+      const nextEl = usingA ? vB : vA;
+      nextEl.currentTime = 0;
+      nextEl.play().catch(()=>{});
+      nextEl.classList.add("bg-video-active");
+      curEl.classList.remove("bg-video-active");
+      clearTimeout(pauseTimer);
+      pauseTimer = setTimeout(()=>{ if(!stopped) curEl.pause(); }, fadeSec*1000);
+      usingA = !usingA;
+      scheduleSwap(nextEl.duration || durationSec);
+    }, waitMs);
+  }
+
+  vA.addEventListener("loadedmetadata", ()=>{
+    if(stopped) return;
+    scheduleSwap(vA.duration || 20);
+  }, { once:true });
+
+  return { stop(){ stopped = true; clearTimeout(timer); clearTimeout(pauseTimer); } };
+}
+
+function enterRoom(roomId){
+  const room = ROOMS.find(r=>r.id===roomId);
+  currentRoom = room;
+  document.getElementById("room-title").textContent = room.name;
+  if(activeVideoCrossfade){ activeVideoCrossfade.stop(); activeVideoCrossfade = null; }
+  document.getElementById("scene-mount").innerHTML = sceneMarkup(room) +
+    `<audio id="music-audio" preload="none"></audio>`;
+  document.querySelectorAll("#scene-mount .bg-video").forEach(v=>{ v.muted = true; v.volume = 0; });
+  const crossfadeContainer = document.querySelector("#scene-mount .bg-video-crossfade");
+  if(crossfadeContainer){
+    activeVideoCrossfade = startVideoCrossfadeLoop(crossfadeContainer, 3.5);
+  }
+  document.documentElement.style.setProperty("--room-accent", room.accent);
+  document.querySelectorAll(".sidebar, .presets-head button, .layer-toggle").forEach(el=>{
+    el.style.setProperty("--room-accent", room.accent);
+  });
+
+  // Resume whichever mix the visitor last had active in this room (a saved
+  // preset, if one is still around), otherwise fall back to the room default.
+  const lastMix = loadLastMix()[room.id];
+  const resumedPreset = lastMix && lastMix.type === "preset"
+    ? getRoomPresets(room.id).find(p=>p.name === lastMix.name)
+    : null;
+
+  roomState = {};
+  SOUNDS.forEach(s=>{
+    const saved = resumedPreset ? resumedPreset.layers[s.id] : room.defaults[s.id];
+    roomState[s.id] = saved ? { on:saved.on, vol:saved.vol } : { on:false, vol:s.baseVol };
+  });
+
+  renderLayers(room);
+  renderPresets(room);
+
+  setSidebarOpen(false);
+
+  document.getElementById("room-view").classList.add("active");
+  stopAllLayers();
+  startPlayback();
+}
+
+function backToHall(){
+  playing = false;
+  stopAllLayers();
+  if(musicEl){ musicEl.pause(); }
+  document.querySelectorAll("#scene-mount .bg-video").forEach(v=>v.pause());
+  document.getElementById("room-view").classList.remove("active");
+}
+document.getElementById("back-btn").addEventListener("click", backToHall);
+
+const sidebarEl = document.getElementById("sidebar");
+const sidebarToggleBtn = document.getElementById("sidebar-toggle");
+function setSidebarOpen(open){
+  sidebarEl.classList.toggle("open", open);
+  sidebarToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+sidebarToggleBtn.addEventListener("click", ()=> setSidebarOpen(!sidebarEl.classList.contains("open")));
+document.getElementById("sidebar-close").addEventListener("click", ()=> setSidebarOpen(false));
+
+/* ---------- fullscreen (hides the browser chrome, not just our own UI) ----------
+   iOS Safari has no Fullscreen API for ordinary elements (only <video> supports
+   its own native fullscreen), so the button is hidden there instead of sitting
+   dead on screen. */
+const fullscreenBtn = document.getElementById("fullscreen-toggle");
+const fullscreenSupported = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+if(!fullscreenSupported) fullscreenBtn.hidden = true;
+function isFullscreen(){
+  return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+function updateFullscreenButton(){
+  const fs = isFullscreen();
+  fullscreenBtn.textContent = fs ? "⤡" : "⛶";
+  fullscreenBtn.title = fs ? "Exit fullscreen" : "Fullscreen";
+  fullscreenBtn.setAttribute("aria-label", fs ? "Exit fullscreen" : "Enter fullscreen");
+}
+fullscreenBtn.addEventListener("click", ()=>{
+  if(!isFullscreen()){
+    const req = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
+    if(req){
+      req.call(document.documentElement).catch(()=>{
+        // Blocked by the embedding page's permissions policy (e.g. a Wix
+        // iframe embed that doesn't grant the "fullscreen" feature) — the
+        // API exists but will never work here, so stop offering it.
+        fullscreenBtn.hidden = true;
+      });
+    }
+  }else{
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if(exit) exit.call(document);
+  }
+});
+document.addEventListener("fullscreenchange", updateFullscreenButton);
+document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
+
+function renderLayers(room){
+  const mount = document.getElementById("layers-mount");
+  mount.innerHTML = "";
+  let lastCategory = null;
+  SOUNDS.forEach(sound=>{
+    if(sound.category !== lastCategory){
+      lastCategory = sound.category;
+      const head = document.createElement("div");
+      head.className = "layer-category";
+      head.textContent = lastCategory;
+      mount.appendChild(head);
+    }
+
+    const state = roomState[sound.id];
+    const row = document.createElement("div");
+    row.className = "layer-row";
+    row.style.setProperty("--room-accent", room.accent);
+
+    const toggle = document.createElement("button");
+    toggle.className = "layer-toggle" + (state.on ? " on":"");
+    toggle.textContent = sound.icon;
+    toggle.title = state.on ? "Turn off" : "Turn on";
+    toggle.addEventListener("click", ()=>{
+      state.on = !state.on;
+      toggle.classList.toggle("on", state.on);
+      if(state.on && playing) startLayerIfNeeded(sound, state);
+      applyLayerAudioState(sound, state.on, state.vol);
+    });
+
+    const nameWrap = document.createElement("div");
+    nameWrap.className = "layer-name";
+    let subLabel = "";
+    if(sound.kind === "music"){
+      const n = MUSIC_PLAYLIST.length;
+      subLabel = n === 0 ? "No songs added yet" : `${n} song${n===1?"":"s"} · plays through on repeat`;
+    }
+    nameWrap.innerHTML = `${sound.name}` + (subLabel ? `<span class="music-tag">${subLabel}</span>` : "");
+
+    const vol = document.createElement("input");
+    vol.type = "range"; vol.min=0; vol.max=100; vol.value=state.vol;
+    vol.addEventListener("input", ()=>{
+      state.vol = parseInt(vol.value,10);
+      applyLayerAudioState(sound, state.on, state.vol);
+    });
+
+    row.appendChild(toggle);
+    row.appendChild(nameWrap);
+    row.appendChild(vol);
+    mount.appendChild(row);
+  });
+}
+
+/* Lazily create/start a sound's actual audio nodes the first time it's
+   needed, instead of preloading every sound in the shared library up front —
+   with 8+ real audio files available in every room, eagerly starting all of
+   them at once (most muted at 0 gain) causes enough concurrent local file
+   loads to starve out the ones a visitor actually wants to hear. */
+function startLayerIfNeeded(sound, state){
+  if(activeLayers[sound.id]) return;
+  if(sound.kind === "crackle") startCrackleLayer(sound, state);
+  else if(sound.kind === "avloop") startAvLoopLayer(sound, state);
+  else if(sound.kind === "music") startMusicLayer(sound, state);
+}
+
+/* start/stop actual audio sources for a freshly-entered room (or a preset
+   swap) — only the sounds actually toggled on, plus the free/synthetic ones. */
+function primeRoomAudio(room){
+  stopAllLayers();
+  SOUNDS.forEach(sound=>{
+    const state = roomState[sound.id];
+    if(sound.kind === "crackle" || sound.kind === "music" || state.on){
+      startLayerIfNeeded(sound, state);
+    }
+    applyLayerAudioState(sound, state.on, state.vol);
+  });
+}
+
+const sceneClickEl = document.getElementById("scene-click");
+const playIndicatorEl = document.getElementById("play-indicator");
+let indicatorHideTimer = null;
+
+function refreshPlayIndicator(){
+  playIndicatorEl.textContent = playing ? "❚❚" : "▶";
+  sceneClickEl.classList.toggle("paused", !playing);
+}
+
+function flashPlayIndicator(){
+  sceneClickEl.classList.add("show-indicator");
+  clearTimeout(indicatorHideTimer);
+  if(playing){
+    indicatorHideTimer = setTimeout(()=> sceneClickEl.classList.remove("show-indicator"), 1400);
+  }
+}
+
+function applyVideoPlayState(){
+  document.querySelectorAll("#scene-mount .bg-video").forEach(v=>{
+    v.muted = true; v.volume = 0;
+    if(playing){
+      // in a crossfade pair, only resume the currently-visible video —
+      // the hidden one stays paused until the crossfade schedules it
+      const inCrossfade = v.closest(".bg-video-crossfade");
+      if(!inCrossfade || v.classList.contains("bg-video-active")) v.play().catch(()=>{});
+    }else{
+      v.pause();
+    }
+  });
+  document.getElementById("scene-mount").classList.toggle("paused", !playing);
+}
+
+/* Starts audio + video for the current room. Safe to call directly from a
+   room-tile click (autoplay-on-entry) as well as from the play/pause toggle,
+   since both are triggered by a genuine user gesture. */
+function startPlayback(){
+  ensureCtx();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  playing = true;
+  refreshPlayIndicator();
+  applyVideoPlayState();
+
+  if(Object.keys(activeLayers).length === 0){
+    primeRoomAudio(currentRoom);
+  }else{
+    SOUNDS.forEach(s=>{
+      const state = roomState[s.id];
+      if(s.kind === "crackle" || s.kind === "music" || state.on) startLayerIfNeeded(s, state);
+    });
+    SOUNDS.forEach(s=>applyLayerAudioState(s, roomState[s.id].on, roomState[s.id].vol));
+  }
+  if(musicEl && roomState.music && roomState.music.on && musicEl.src) musicEl.play().catch(()=>{});
+}
+
+function stopPlayback(){
+  playing = false;
+  refreshPlayIndicator();
+  applyVideoPlayState();
+  SOUNDS.forEach(s=>applyLayerAudioState(s, false, roomState[s.id].vol));
+  SOUNDS.forEach(s=>{ if(activeLayers[s.id]) activeLayers[s.id].on = roomState[s.id].on; });
+  if(musicEl) musicEl.pause();
+}
+
+function toggleMasterPlay(){
+  if(playing) stopPlayback(); else startPlayback();
+}
+
+sceneClickEl.addEventListener("mousemove", flashPlayIndicator);
+sceneClickEl.addEventListener("mouseenter", flashPlayIndicator);
+sceneClickEl.addEventListener("touchstart", flashPlayIndicator, { passive:true });
+sceneClickEl.addEventListener("click", ()=>{
+  toggleMasterPlay();
+  flashPlayIndicator();
+});
+
+document.getElementById("master-volume").addEventListener("input", (e)=>{
+  if(masterGain){
+    masterGain.gain.linearRampToValueAtTime(e.target.value/100, audioCtx.currentTime+0.2);
+  }
+});
+
+/* ---------- presets UI ---------- */
+function applyDefaults(room){
+  SOUNDS.forEach(sound=>{
+    const d = room.defaults[sound.id];
+    roomState[sound.id] = d ? { on:d.on, vol:d.vol } : { on:false, vol:sound.baseVol };
+  });
+  renderLayers(room);
+  setLastMix(room.id, { type:"default" });
+  if(playing) primeRoomAudio(room);
+}
+
+function renderPresets(room){
+  const wrap = document.getElementById("preset-chips");
+  wrap.innerHTML = "";
+
+  const defaultChip = document.createElement("div");
+  defaultChip.className = "preset-chip preset-chip-default";
+  defaultChip.innerHTML = `<span>Default</span>`;
+  defaultChip.title = "Reset to this room's default mix";
+  defaultChip.addEventListener("click", ()=>applyDefaults(room));
+  wrap.appendChild(defaultChip);
+
+  getRoomPresets(room.id).forEach(p=>{
+    const chip = document.createElement("div");
+    chip.className = "preset-chip";
+    chip.innerHTML = `<span>${p.name}</span>`;
+    const del = document.createElement("button");
+    del.textContent = "✕";
+    del.title = "Delete";
+    del.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      deleteRoomPreset(room.id, p.name);
+      renderPresets(room);
+    });
+    chip.appendChild(del);
+    chip.addEventListener("click", ()=>applyPreset(room, p));
+    wrap.appendChild(chip);
+  });
+}
+
+function applyPreset(room, preset){
+  SOUNDS.forEach(sound=>{
+    const saved = preset.layers[sound.id];
+    roomState[sound.id] = saved ? { on:saved.on, vol:saved.vol } : { on:false, vol:sound.baseVol };
+  });
+  renderLayers(room);
+  setLastMix(room.id, { type:"preset", name:preset.name });
+  if(playing) primeRoomAudio(room);
+}
+
+document.getElementById("preset-save").addEventListener("click", ()=>{
+  const nameInput = document.getElementById("preset-name");
+  const name = nameInput.value.trim();
+  if(!name || !currentRoom) return;
+  const layersSnapshot = {};
+  SOUNDS.forEach(s=>{ layersSnapshot[s.id] = { on: roomState[s.id].on, vol: roomState[s.id].vol }; });
+  saveRoomPreset(currentRoom.id, { name, layers: layersSnapshot });
+  setLastMix(currentRoom.id, { type:"preset", name });
+  nameInput.value = "";
+  renderPresets(currentRoom);
+});
+</script>
+</body>
+</html>
