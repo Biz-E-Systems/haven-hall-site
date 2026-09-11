@@ -1,6 +1,6 @@
 {
   "routes": [
     { "route": "/haven-hall", "rewrite": "/peace-rooms.html" },
-    { "route": "/the-sanctuary", "rewrite": "/sanctuary.html" }
+    { "route": "/the-sanctuary", "rewrite": "/index.html" }
   ]
 }
