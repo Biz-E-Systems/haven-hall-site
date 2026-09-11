@@ -55,6 +55,18 @@
     font-size:12px;letter-spacing:0.18em;text-transform:uppercase;
     color:var(--gold);margin-bottom:14px;
   }
+
+  .site-back-btn{
+    position:fixed;z-index:5;
+    top:calc(14px + env(safe-area-inset-top));
+    left:calc(14px + env(safe-area-inset-left));
+    width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(14,16,22,0.5);
+    border:1px solid rgba(239,230,211,0.25);
+    color:var(--cream);font-size:16px;
+    backdrop-filter:blur(6px);
+  }
   h1.title{
     font-size:clamp(32px,7vw,52px);text-align:center;
     text-shadow:0 4px 30px rgba(0,0,0,0.6);
@@ -166,6 +178,8 @@
        loading="eager" fetchpriority="high" decoding="async">
   <div class="backdrop-scrim"></div>
 </div>
+
+<a class="site-back-btn" href="https://www.thepaintedlife.com" aria-label="Back to The Painted Life" title="The Painted Life">←</a>
 
 <div class="page">
   <div class="kicker">The Sanctuary</div>

@@ -281,14 +281,24 @@
 
   .presets{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
   .presets-head{display:flex;gap:8px;margin-bottom:10px;}
+  .presets-coming-soon{
+    font-size:11px;color:var(--dim);
+    background:rgba(239,230,211,0.06);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 10px;
+    margin-bottom:10px;
+  }
   .presets-head input[type=text]{
     flex:1;background:var(--panel-2);border:1px solid var(--line);color:var(--cream);
     padding:8px 10px;border-radius:8px;font-size:16px;
   }
+  .presets-head input[type=text]:disabled{opacity:0.4;cursor:not-allowed;}
   .presets-head button{
     background:var(--room-accent, var(--cream));color:var(--ink);border:none;
     padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;
   }
+  .presets-head button:disabled{opacity:0.4;cursor:not-allowed;}
   .preset-chips{display:flex;flex-wrap:wrap;gap:8px;}
   .preset-chip{
     display:flex;align-items:center;gap:8px;
@@ -414,9 +424,10 @@
     <div class="layers" id="layers-mount"></div>
 
     <div class="presets">
+      <div class="presets-coming-soon">🔒 Coming soon — save your own room settings!</div>
       <div class="presets-head">
-        <input type="text" id="preset-name" placeholder="Name this mix…" maxlength="30">
-        <button id="preset-save">Save</button>
+        <input type="text" id="preset-name" placeholder="Name this mix…" maxlength="30" disabled>
+        <button id="preset-save" disabled>Save</button>
       </div>
       <div class="preset-chips" id="preset-chips"></div>
     </div>
