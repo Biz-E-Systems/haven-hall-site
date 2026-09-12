@@ -226,6 +226,17 @@
   }
   .icon-btn:hover{border-color:rgba(255,214,140,0.5);}
   .icon-btn[hidden]{display:none;}
+  .customize-btn{
+    height:36px;border-radius:20px;flex:none;
+    background:rgba(14,16,22,0.5);
+    border:1px solid rgba(239,230,211,0.25);
+    color:var(--cream);
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    padding:0 14px;font-size:13px;font-weight:500;white-space:nowrap;
+    backdrop-filter:blur(6px);
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .customize-btn:hover{border-color:rgba(255,214,140,0.5);}
   .sidebar-toggle[aria-expanded="true"]{background:var(--room-accent, var(--cream));color:var(--ink);border-color:transparent;}
 
   .sidebar{
@@ -372,6 +383,7 @@
        people actually tap on a phone, without changing their desktop size. */
     .layer-toggle{width:34px;height:34px;font-size:15px;}
     .icon-btn{width:44px;height:44px;font-size:16px;}
+    .customize-btn{height:44px;padding:0 16px;font-size:14px;}
     .sidebar-close{width:36px;height:36px;font-size:18px;}
     input[type=range]::-webkit-slider-thumb{width:20px;height:20px;}
     input[type=range]::-moz-range-thumb{width:20px;height:20px;}
@@ -414,7 +426,7 @@
     <h2 id="room-title" class="sr-only"></h2>
     <div class="topbar-actions">
       <button class="icon-btn" id="fullscreen-toggle" aria-label="Enter fullscreen" title="Fullscreen">⛶</button>
-      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" aria-label="Sound settings" aria-expanded="false">☰</button>
+      <button class="customize-btn sidebar-toggle" id="sidebar-toggle" aria-label="Customize sound settings" aria-expanded="false">Customize Sound</button>
     </div>
   </div>
 
