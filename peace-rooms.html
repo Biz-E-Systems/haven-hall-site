@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <!-- Google tag (gtag.js) -->
@@ -283,7 +283,6 @@
   }
   .layer-toggle.on{background:var(--room-accent, var(--cream));border-color:transparent;color:var(--ink);}
   .layer-name{font-size:13.5px;}
-  .layer-name .music-tag{display:block;font-size:10.5px;color:var(--dim);margin-top:1px;}
   .layer-row input[type=range]{width:100%;}
 
   input[type=range]{
@@ -567,11 +566,11 @@ function sceneMarkup(room){
   if(room.id === "drift"){
     return `<div class="bg-fill drift-bg"></div>
       <div class="bg-video-crossfade">
-        <video class="bg-video" style="object-position:20% center" autoplay muted playsinline preload="auto"
+        <video class="bg-video" style="object-position:35% center" autoplay muted playsinline preload="auto"
                onerror="this.style.display='none'">
           <source src="https://video.wixstatic.com/video/6626e8_25b598f179f34aa0b64b5023a43eac9e/720p/mp4/file.mp4" type="video/mp4">
         </video>
-        <video class="bg-video" style="object-position:20% center" muted playsinline preload="auto"
+        <video class="bg-video" style="object-position:35% center" muted playsinline preload="auto"
                onerror="this.style.display='none'">
           <source src="https://video.wixstatic.com/video/6626e8_25b598f179f34aa0b64b5023a43eac9e/720p/mp4/file.mp4" type="video/mp4">
         </video>
@@ -714,27 +713,43 @@ function startAvLoopLayer(layer, state){
   audioCtx.createMediaElementSource(elA).connect(gA).connect(layerGain);
   audioCtx.createMediaElementSource(elB).connect(gB).connect(layerGain);
 
-  let stopped = false, timer = null, usingA = true;
+  let stopped = false, usingA = true, swapping = false;
 
-  function scheduleSwap(durationSec){
-    const waitMs = Math.max(500, (durationSec - fade) * 1000);
-    timer = setTimeout(()=>{
-      if(stopped) return;
-      const now = audioCtx.currentTime;
-      const nextEl = usingA ? elB : elA;
-      const curGain = usingA ? gA : gB;
-      const nextGain = usingA ? gB : gA;
-      nextEl.currentTime = 0;
-      nextEl.play().catch(err=>console.error("avloop layer play() rejected:", layer.src, err));
-      curGain.gain.cancelScheduledValues(now);
-      curGain.gain.linearRampToValueAtTime(0, now + fade);
-      nextGain.gain.cancelScheduledValues(now);
-      nextGain.gain.setValueAtTime(0, now);
-      nextGain.gain.linearRampToValueAtTime(1, now + fade);
-      usingA = !usingA;
-      scheduleSwap(nextEl.duration || durationSec);
-    }, waitMs);
+  // Watches actual playback progress rather than pre-computing a fixed
+  // timer off the file's metadata duration — MP3 duration estimates
+  // (especially VBR exports) can be slightly inaccurate in the browser,
+  // which made a fixed timer fire late enough to hit dead air before the
+  // next copy started (an audible stop-then-restart instead of a crossfade).
+  // currentTime/duration are always self-consistent during live playback,
+  // so this stays accurate even if the initial estimate was off.
+  function performSwap(){
+    if(stopped || swapping) return;
+    swapping = true;
+    const now = audioCtx.currentTime;
+    const nextEl = usingA ? elB : elA;
+    const curGain = usingA ? gA : gB;
+    const nextGain = usingA ? gB : gA;
+    nextEl.currentTime = 0;
+    nextEl.play().catch(err=>console.error("avloop layer play() rejected:", layer.src, err));
+    curGain.gain.cancelScheduledValues(now);
+    curGain.gain.linearRampToValueAtTime(0, now + fade);
+    nextGain.gain.cancelScheduledValues(now);
+    nextGain.gain.setValueAtTime(0, now);
+    nextGain.gain.linearRampToValueAtTime(1, now + fade);
+    usingA = !usingA;
+    setTimeout(()=>{ swapping = false; }, fade * 1000);
   }
+
+  function watch(el){
+    el.addEventListener("timeupdate", ()=>{
+      if(stopped || swapping) return;
+      if(el.duration && isFinite(el.duration) && el.currentTime >= el.duration - fade){
+        performSwap();
+      }
+    });
+  }
+  watch(elA);
+  watch(elB);
 
   elA.addEventListener("error", ()=>{
     console.error("avloop layer failed to load:", layer.src, elA.error);
@@ -742,14 +757,12 @@ function startAvLoopLayer(layer, state){
   elA.addEventListener("loadedmetadata", ()=>{
     if(stopped) return;
     elA.play().catch(err=>console.error("avloop layer play() rejected:", layer.src, err));
-    scheduleSwap(elA.duration || 120);
   }, { once:true });
 
   activeLayers[layer.id] = {
     gain: layerGain, targetVol:(state.vol/100),
     stop(){
       stopped = true;
-      if(timer) clearTimeout(timer);
       try{ elA.pause(); elB.pause(); }catch(e){}
     }
   };
@@ -790,7 +803,7 @@ function startMusicLayer(layer, state){
   };
 }
 
-function applyLayerAudioState(layer, on, vol){
+function applyLayerAudioState(layer, on, vol, fadeSec = 0.5){
   const entry = activeLayers[layer.id];
   if(!entry) return;
   entry.on = on;
@@ -803,7 +816,7 @@ function applyLayerAudioState(layer, on, vol){
   const t = audioCtx.currentTime;
   const target = (on && playing) ? vol/100 : 0;
   entry.gain.gain.cancelScheduledValues(t);
-  entry.gain.gain.linearRampToValueAtTime(target, t+0.5);
+  entry.gain.gain.linearRampToValueAtTime(target, t+fadeSec);
 }
 
 function stopAllLayers(){
@@ -1016,12 +1029,7 @@ function renderLayers(room){
 
     const nameWrap = document.createElement("div");
     nameWrap.className = "layer-name";
-    let subLabel = "";
-    if(sound.kind === "music"){
-      const n = MUSIC_PLAYLIST.length;
-      subLabel = n === 0 ? "No songs added yet" : `${n} song${n===1?"":"s"} · plays through on repeat`;
-    }
-    nameWrap.innerHTML = `${sound.name}` + (subLabel ? `<span class="music-tag">${subLabel}</span>` : "");
+    nameWrap.textContent = sound.name;
 
     const vol = document.createElement("input");
     vol.type = "range"; vol.min=0; vol.max=100; vol.value=state.vol;
@@ -1051,14 +1059,14 @@ function startLayerIfNeeded(sound, state){
 
 /* start/stop actual audio sources for a freshly-entered room (or a preset
    swap) — only the sounds actually toggled on, plus the free/synthetic ones. */
-function primeRoomAudio(room){
+function primeRoomAudio(room, fadeSec = 0.5){
   stopAllLayers();
   SOUNDS.forEach(sound=>{
     const state = roomState[sound.id];
     if(sound.kind === "crackle" || sound.kind === "music" || state.on){
       startLayerIfNeeded(sound, state);
     }
-    applyLayerAudioState(sound, state.on, state.vol);
+    applyLayerAudioState(sound, state.on, state.vol, fadeSec);
   });
 }
 
@@ -1105,7 +1113,9 @@ function startPlayback(){
   applyVideoPlayState();
 
   if(Object.keys(activeLayers).length === 0){
-    primeRoomAudio(currentRoom);
+    // A fresh room entry — ease the default sounds in gently instead of
+    // popping in at full volume the instant each file finishes loading.
+    primeRoomAudio(currentRoom, 3);
   }else{
     SOUNDS.forEach(s=>{
       const state = roomState[s.id];
